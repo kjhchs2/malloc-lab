@@ -78,7 +78,6 @@ static void* find_fit(size_t adjust_size);
 static void place(void* bp, size_t adjust_size);
 void *mm_malloc(size_t size);
 int mm_init(void);
-void *mm_realloc(void *ptr, size_t size);
 
 /* 
  * mm_init - initialize the malloc package.
@@ -172,7 +171,7 @@ static void* find_fit(size_t adjust_size){
     {
         bp += GET_SIZE(HDRP(bp));
 
-        if (GET_SIZE(HDRP(NEXT_BLKP(bp))) == 0){        //Epilogue를 만났을 때
+        if (GET_SIZE(HDRP(bp)) == 0){        //Epilogue를 만났을 때
             return NULL;
         }
     }
@@ -198,8 +197,9 @@ void *mm_malloc(size_t size)
     }
     else 
     {
-    adjust_size = DSIZE * ((size + (DSIZE)+(DSIZE - 1)) / DSIZE);
+        adjust_size = DSIZE * ((size + (DSIZE)+(DSIZE - 1)) / DSIZE);
     }
+
     // 사이즈에 맞는 위치 탐색
     if ((bp = find_fit(adjust_size)) != NULL)
     {
