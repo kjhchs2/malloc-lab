@@ -220,7 +220,7 @@ static void place(void* bp, size_t adjust_size){
 
     int cur_size = GET_SIZE(HDRP(bp));
 
-    if (cur_size - adjust_size <= 2*DSIZE){
+    if (cur_size - adjust_size >= 2*DSIZE){
         PUT(HDRP(bp), PACK(adjust_size, 1));
         PUT(FTRP(bp), PACK(adjust_size, 1));
         PUT(HDRP(NEXT_BLKP(bp)), PACK(cur_size - adjust_size, 0));
