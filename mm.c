@@ -236,19 +236,24 @@ static void place(void* bp, size_t adjust_size){
 /*
  * mm_realloc - Implemented simply in terms of mm_malloc and mm_free
  */
-void *mm_realloc(void *ptr, size_t size)
+void *mm_realloc(void *bp, size_t size)
 {
-    void *oldptr = ptr;
-    void *newptr;
+    void *old_bp = bp;
+    void *new_bp;
     size_t copySize;
     
-    newptr = mm_malloc(size);
-    if (newptr == NULL)
+    new_bp = mm_malloc(size);
+    if (new_bp == NULL)
       return NULL;
-    copySize = *(size_t *)((char *)oldptr - SIZE_T_SIZE);
+    
+    copySize = GET_SIZE(HDRP(old_bp)) - DSIZE ;
+
     if (size < copySize)
       copySize = size;
-    memcpy(newptr, oldptr, copySize);
-    mm_free(oldptr);
-    return newptr;
+    
+    memcpy(new_bp, old_bp, copySize);
+
+    mm_free(old_bp);
+    
+    return new_bp;
 }
