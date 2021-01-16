@@ -92,9 +92,10 @@ int mm_init(void)
     PUT(heap_listp + (2 * WSIZE), PACK(DSIZE, 1));
     PUT(heap_listp + (3 * WSIZE), PACK(0, 1));
     heap_listp += (2 * WSIZE);
-    if (extend_heap(CHUNKSIZE / WSIZE) == NULL) return -1; {
-        return 0;
+    if (extend_heap(CHUNKSIZE / WSIZE) == NULL) {
+        return -1; 
     }
+    return 0;
 }
 
 static void* extend_heap(size_t words)
@@ -201,7 +202,7 @@ void *mm_malloc(size_t size)
     }
     // 사이즈에 맞는 위치가 없는 경우, 추가적으로 힙 영역 요청 및 배치
     extend_size = MAX(adjust_size, CHUNKSIZE);
-    if ((bp = extend_haep(extend_size / WSIZE)) == NULL)
+    if ((bp = extend_heap(extend_size / WSIZE)) == NULL)
     {
         return NULL;
     } 
@@ -220,8 +221,8 @@ static void place(void* bp, size_t adjust_size){
     else{
         PUT(HDRP(bp), PACK(adjust_size, 1));
         PUT(FTRP(bp), PACK(adjust_size, 1));
-        PUT(HDR(NEXT_BLKP(bp)), PACK(cur_size - adjust_size, 0));
-        PUT(FTR(NEXT_BLKP(bp)), PACK(cur_size - adjust_size, 0));
+        PUT(HDRP(NEXT_BLKP(bp)), PACK(cur_size - adjust_size, 0));
+        PUT(FTRP(NEXT_BLKP(bp)), PACK(cur_size - adjust_size, 0));
     }
 }
 
