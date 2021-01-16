@@ -165,6 +165,8 @@ static void *coalesce(void* bp)
 
 static void* find_fit(size_t adjust_size){
     char *bp = heap_listp;
+    bp += GET_SIZE(HDRP(bp));
+    
     while ( GET_SIZE(HDRP(NEXT_BLKP(bp))) < adjust_size || GET_ALLOC(HDRP(NEXT_BLKP(bp))) == 0 )
     {
         bp += GET_SIZE(HDRP(bp));
