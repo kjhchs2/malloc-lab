@@ -220,16 +220,27 @@ static void place(void* bp, size_t adjust_size){
 
     int cur_size = GET_SIZE(HDRP(bp));
 
-    if (cur_size - adjust_size < 2*DSIZE){      // 메모리를 할당하고 남은 공간이 16byte 미만일 때는 따로 뒤에 헤더, 푸터를 만들어주지 않는다.
-        PUT(HDRP(bp), PACK(cur_size, 1));
-        PUT(FTRP(bp), PACK(cur_size, 1));
-    }
-    else{
+    if (cur_size - adjust_size <= 2*DSIZE){
         PUT(HDRP(bp), PACK(adjust_size, 1));
         PUT(FTRP(bp), PACK(adjust_size, 1));
         PUT(HDRP(NEXT_BLKP(bp)), PACK(cur_size - adjust_size, 0));
         PUT(FTRP(NEXT_BLKP(bp)), PACK(cur_size - adjust_size, 0));
     }
+    else {
+        PUT(HDRP(bp), PACK(cur_size, 1));
+        PUT(FTRP(bp), PACK(cur_size, 1));       
+    }
+
+    // if (cur_size - adjust_size < 2*DSIZE){      // 메모리를 할당하고 남은 공간이 16byte 미만일 때는 따로 뒤에 헤더, 푸터를 만들어주지 않는다.
+    //     PUT(HDRP(bp), PACK(cur_size, 1));
+    //     PUT(FTRP(bp), PACK(cur_size, 1));
+    // }
+    // else{
+    //     PUT(HDRP(bp), PACK(adjust_size, 1));
+    //     PUT(FTRP(bp), PACK(adjust_size, 1));
+    //     PUT(HDRP(NEXT_BLKP(bp)), PACK(cur_size - adjust_size, 0));
+    //     PUT(FTRP(NEXT_BLKP(bp)), PACK(cur_size - adjust_size, 0));
+    // }
 }
 
 
