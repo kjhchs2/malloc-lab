@@ -44,8 +44,8 @@ team_t team = {
 #define SIZE_T_SIZE (ALIGN(sizeof(size_t)))     //size_t를 통해 size 결정 *size_t는 64비트 환경에서 64비트
 
 /* 기본 상수 및 매크로 설정 */
-#define WSIZE sizeof(void *)     // 워드사이즈로 헤더&푸터의 사이즈와 같음
-#define DSIZE (2*WSIZE)          // 더블 워드 사이즈 = ALIGNMENT 사이즈
+#define WSIZE 4                  // 워드사이즈로 헤더&푸터의 사이즈와 같음
+#define DSIZE 8                  // 더블 워드 사이즈 = ALIGNMENT 사이즈
 #define CHUNKSIZE (1<<12)        // 초기 최대 힙 사이즈
 
 /* MAX함수 정의 */
@@ -70,21 +70,13 @@ team_t team = {
 #define NEXT_BLKP(bp) ((char*)(bp) + GET_SIZE(((char*)(bp)-WSIZE)))     // 다음 블록 bp로 이동
 #define PREV_BLKP(bp) ((char*)(bp) - GET_SIZE(((char*)(bp)-DSIZE)))     // 이전 블록 bp로 이동
 
-/* freeList의 이전 포인터와 다음 포인터 계산 */
-#define NEXT_FLP(bp)  (*((char**)(bp) + WSIZE))     // 다음 free list의 bp를 가져옴
-#define PREV_FLP(bp)  (*((char**)(bp)))             // 다음 free list의 bp를 가져옴
-
 /* The only global variable is a pointer to the first block */
 static char* heap_listp;
-static char* free_listp;
-static char* N ;
 static void* extend_heap(size_t words);
 static void* coalesce(void* bp);
 static void* find_fit(size_t adjust_size);
 static void place(void* bp, size_t adjust_size);
 void *mm_malloc(size_t size);
-static void add_free(void * bp);
-
 int mm_init(void);
 
 /* 
@@ -94,7 +86,6 @@ int mm_init(void)
 {
     /* Create the initial empty heap */
     /* 빈 힙 영역을 만들어보자 */
-
     if ((heap_listp = mem_sbrk(4 * WSIZE)) == (void*)-1){
         return -1;
     }
@@ -106,8 +97,6 @@ int mm_init(void)
     if (extend_heap(CHUNKSIZE / WSIZE) == NULL) {
         return -1; 
     }
-    N=heap_listp+2*WSIZE;
-    NEXT_FLP(free_listp) = N;
     return 0;
 }
 
@@ -173,7 +162,7 @@ static void *coalesce(void* bp)
 }
 
 
-static void* find_fit(size_t adjust_size){      //first_fit
+static void* find_fit(size_t adjust_size){
     char *bp = heap_listp;
 
     bp += GET_SIZE(HDRP(bp));
@@ -279,24 +268,3 @@ void *mm_realloc(void *bp, size_t size)
     
     return new_bp;
 }
-
-
-// static void add_free(void* bp)
-// {
-//     //프리된 블럭들을 연결체(freelist)에 추가하는 함수
-//     NEXT_FLP(bp) = NEXT_FLP(free_listp);
-//     PREV_FLP(bp) = free_listp;
-//     PREV_FLP(NEXT_FLP(free_listp)) = bp;
-//     NEXT_FLP(free_listp) = bp;
-// }
-
-// static void del_free(void *bp){
-//     NEXT_FLP(PREV_FLP(bp)) = NEXT_FLP(bp);
-//     PREV_FLP(NEXT_FLP(bp)) = PREV_FLP(bp);
-// }
-
-// static int check_block(void* bp)        //malloc 사용될 때 한 번
-// {
-//     size_t cur_size = GET_SIZE(HDRP(bp));
-//     if ()
-// }
