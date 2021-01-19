@@ -236,7 +236,7 @@ static void *coalesce(void* bp)
     if (prev_alloc && !next_alloc)
     {
         size += GET_SIZE(HDRP(NEXT_BLKP(bp)));
-        removeBlock(NEXT_BLK(bp));
+        removeBlock(NEXT_BLKP(bp));
         PUT(HDRP(bp), PACK(size, 0));
         PUT(FTRP(bp), PACK(size, 0));
     }
