@@ -45,7 +45,7 @@ team_t team = {
 /* 기본 상수 및 매크로 설정 */
 #define WSIZE 4     // 워드사이즈로 헤더&푸터의 사이즈와 같음
 #define DSIZE 8           // 더블 워드 사이즈 = ALIGNMENT 사이즈
-#define CHUNKSIZE 16         // 초기 최대 힙 사이즈
+#define CHUNKSIZE (1<<12)         // 초기 최대 힙 사이즈
 #define MINIMUM 24
 
 /* MAX함수 정의 */
@@ -71,7 +71,7 @@ team_t team = {
 #define PREV_BLKP(bp) ((void *)(bp) - GET_SIZE(HDRP(bp)-WSIZE))     // 이전 블록 bp로 이동
 
 /* freeList의 이전 포인터와 다음 포인터 계산 */
-#define NEXT_FLP(bp)  (*(void **)(bp + 1))      // 다음 free list의 bp를 가져옴
+#define NEXT_FLP(bp)  (*(void **)(bp + WSIZE))      // 다음 free list의 bp를 가져옴
 #define PREV_FLP(bp)  (*(void **)(bp))              // 다음 free list의 bp를 가져옴
 
 static char *heap_listp = 0;
