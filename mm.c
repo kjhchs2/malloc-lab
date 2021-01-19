@@ -45,7 +45,7 @@ team_t team = {
 /* 기본 상수 및 매크로 설정 */
 #define WSIZE 4     // 워드사이즈로 헤더&푸터의 사이즈와 같음
 #define DSIZE 8           // 더블 워드 사이즈 = ALIGNMENT 사이즈
-#define CHUNKSIZE (1<<2)         // 초기 최대 힙 사이즈
+#define CHUNKSIZE (1<<10)         // 초기 최대 힙 사이즈
 #define MINIMUM 24
 
 /* MAX함수 정의 */
