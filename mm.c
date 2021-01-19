@@ -79,7 +79,8 @@ static void *extend_heap(size_t words);
 static void *coalesce(void *bp);
 static void *find_fit(size_t adjust_size);
 static void place(void* bp, size_t adjust_size);
-
+void mm_free(void *bp);
+void *mm_realloc(void *bp, size_t size);
 static void remove_block(void*bp);
 
 void *mm_malloc(size_t size);
