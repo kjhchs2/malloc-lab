@@ -40,13 +40,13 @@ team_t team = {
 #define ALIGNMENT 8
 
 /* rounds up to the nearest multiple of ALIGNMENT */
-#define ALIGN(size) (((size) + (ALIGNMENT-1)) & ~0x7)   // ALIGNMENT와 가장 근접한 8배수(ALLIGNMENT배수)로 반올림 
-#define SIZE_T_SIZE (ALIGN(sizeof(size_t)))     //size_t를 통해 size 결정 *size_t는 64비트 환경에서 64비트
+#define ALIGN(p) (((size_t)(p) + (ALIGNMENT-1)) & ~0x7)   // ALIGNMENT와 가장 근접한 8배수(ALLIGNMENT배수)로 반올림 
 
 /* 기본 상수 및 매크로 설정 */
 #define WSIZE (sizeof(void*))     // 워드사이즈로 헤더&푸터의 사이즈와 같음
 #define DSIZE (2*WSIZE)           // 더블 워드 사이즈 = ALIGNMENT 사이즈
 #define CHUNKSIZE (1<<12)         // 초기 최대 힙 사이즈
+#define MINIMUM 24
 
 /* MAX함수 정의 */
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
@@ -99,11 +99,11 @@ int mm_init(void)
         return -1;
     }
     PUT(heap_listp, 0);
-    PUT(heap_listp + (1 * WSIZE), PACK(DSIZE, 1));  //header
+    PUT(heap_listp + (1 * WSIZE), PACK(MINIMUM, 1));  //header
     PUT(heap_listp + (2 * WSIZE), 0);               //PREV
     PUT(heap_listp + (3 * WSIZE), 0);               //NEXT
-    PUT(heap_listp + (6 * WSIZE), PACK(24,1));      //footer
-    PUT(heap_listp + (7 * WSIZE), PACK(0, 1));      //epilogue
+    PUT(heap_listp + MINIMUM, PACK(MINIMUM,1));      //footer
+    PUT(heap_listp + WSIZE+MINIMUM, PACK(0, 1));      //epilogue
 
     free_listp = heap_listp + DSIZE;
 
@@ -121,8 +121,8 @@ static void* extend_heap(size_t words)
     // 정렬을 유지하기 위해 짝수 번호를 할당시킴
     size = (words % 2) ? (words + 1) * WSIZE : words * WSIZE;
     
-    if (size < 24){
-        size = 24;
+    if (size < MINIMUM){
+        size = MINIMUM;
     }
 
     if ((long)(bp = mem_sbrk(size)) == -1) {
@@ -156,12 +156,9 @@ static void *coalesce(void* bp)
     size_t prev_alloc = GET_ALLOC(FTRP(PREV_BLKP(bp))) || PREV_BLKP(bp) == bp;
     size_t next_alloc = GET_ALLOC(HDRP(NEXT_BLKP(bp)));
     size_t size = GET_SIZE(HDRP(bp));
-    // free한 block 앞, 뒤에 모두 할당 되어있는 block이 있는 경우
-    if (prev_alloc && next_alloc) {
-        return bp;
-    }
+
     // free한 블록 뒤에만 free 되어있는 block이 있는 경우
-    else if (prev_alloc && !next_alloc) {
+    if (prev_alloc && !next_alloc) {
         size += GET_SIZE(HDRP(NEXT_BLKP(bp)));
         remove_block(NEXT_BLKP(bp));
         PUT(HDRP(bp), PACK(size, 0));
@@ -187,6 +184,8 @@ static void *coalesce(void* bp)
         
     }
 
+    // free한 block 앞, 뒤에 모두 할당 되어있는 block이 있는 경우
+
     NEXT_FLP(bp) = free_listp;
     PREV_FLP(free_listp) = bp;
     PREV_FLP(bp) = NULL;
@@ -196,21 +195,20 @@ static void *coalesce(void* bp)
 }
 
 
-static void* find_fit(size_t adjust_size){
-    char *bp = heap_listp;
+static void* find_fit(size_t adjust_size)
+{
+    char *bp ;
 
-    bp += GET_SIZE(HDRP(bp));
-
-    while ( GET_SIZE(HDRP(bp)) < adjust_size || GET_ALLOC(HDRP(bp)) == 1 )
+    for (bp = free_listp; GET_ALLOC(HDRP(bp))==0; bp=NEXT_FLP(bp))
     {
-        bp += GET_SIZE(HDRP(bp));
-
-        if (GET_SIZE(HDRP(bp)) == 0){        //Epilogue를 만났을 때
-            return NULL;
+        if (adjust_size <= (size_t)GET_SIZE(HDRP(bp)))
+        {         //size_t 붙이는 이유?
+            return bp;
         }
     }
-    return bp;
+    return NULL;
 }
+
 
 /* 
  * mm_malloc - Allocate a block by incrementing the brk pointer.
@@ -221,18 +219,13 @@ void *mm_malloc(size_t size)
     size_t adjust_size;           // 블록 사이즈 조정
     size_t extend_size;           // 힙 확장 사이즈
     char* bp;
-    if (size == 0)
+    if (size <= 0)
     {
         return NULL;
     }
-    if (size <= DSIZE)
-    {
-        adjust_size = DSIZE * 2;
-    }
-    else 
-    {
-        adjust_size = DSIZE * ((size + (DSIZE)+(DSIZE - 1)) / DSIZE);
-    }
+    
+    adjust_size = MAX(ALIGN(size)+DSIZE, MINIMUM);
+    
 
     // 사이즈에 맞는 위치 탐색
     if ((bp = find_fit(adjust_size)) != NULL)
@@ -254,16 +247,15 @@ static void place(void* bp, size_t adjust_size){
 
     int cur_size = GET_SIZE(HDRP(bp));
 
-    if (cur_size - adjust_size >= 2*DSIZE){
+    if (cur_size - adjust_size >= MINIMUM){
         PUT(HDRP(bp), PACK(adjust_size, 1));
         PUT(FTRP(bp), PACK(adjust_size, 1));
 
         remove_block(bp);
         bp = NEXT_BLKP(bp);
 
-        PUT(HDRP(NEXT_BLKP(bp)), PACK(cur_size - adjust_size, 0));
-        PUT(FTRP(
-            NEXT_BLKP(bp)), PACK(cur_size - adjust_size, 0));
+        PUT(HDRP(bp), PACK(cur_size - adjust_size, 0));
+        PUT(FTRP(bp), PACK(cur_size - adjust_size, 0));
     }
     else {
         PUT(HDRP(bp), PACK(cur_size, 1));
