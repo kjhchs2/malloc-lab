@@ -85,6 +85,7 @@ static void removeBlock(void *bp);
 
 int mm_init(void)
 {
+    printf("init");
     if ((heap_listp = mem_sbrk(2*MINIMUM)) == NULL)
     {
         return -1;
@@ -105,6 +106,7 @@ int mm_init(void)
 
 void * mm_malloc (size_t size)
 {
+    printf("malloc");
     size_t asize;
     size_t extendsize;
     char *bp;
