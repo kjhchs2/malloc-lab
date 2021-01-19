@@ -153,7 +153,7 @@ void mm_free(void *bp)
 
 static void *coalesce(void* bp)
 {
-    size_t prev_alloc = GET_ALLOC(FTRP(PREV_BLKP(bp)));
+    size_t prev_alloc = GET_ALLOC(FTRP(PREV_BLKP(bp))) || PREV_BLKP(bp) == bp;
     size_t next_alloc = GET_ALLOC(HDRP(NEXT_BLKP(bp)));
     size_t size = GET_SIZE(HDRP(bp));
     // free한 block 앞, 뒤에 모두 할당 되어있는 block이 있는 경우
