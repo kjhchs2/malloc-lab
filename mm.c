@@ -71,7 +71,7 @@ team_t team = {
 #define PREV_BLKP(bp) ((void *)(bp) - GET_SIZE(HDRP(bp)-WSIZE))     // 이전 블록 bp로 이동
 
 /* freeList의 이전 포인터와 다음 포인터 계산 */
-#define NEXT_FLP(bp)  (*(void **)(bp + WSIZE))      // 다음 free list의 bp를 가져옴
+#define NEXT_FLP(bp)  (*(void **)(bp + DSIZE))      // 다음 free list의 bp를 가져옴
 #define PREV_FLP(bp)  (*(void **)(bp))              // 다음 free list의 bp를 가져옴
 
 static char *heap_listp = 0;
