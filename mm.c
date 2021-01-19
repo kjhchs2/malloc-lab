@@ -95,6 +95,7 @@ int mm_init(void)
 {
     /* Create the initial empty heap */
     /* 빈 힙 영역을 만들어보자 */
+    printf("hello");
     if ((heap_listp = mem_sbrk(4 * WSIZE)) == (void*)-1){
         return -1;
     }
