@@ -71,7 +71,7 @@ team_t team = {
 #define PREV_BLKP(bp) ((char*)(bp) - GET_SIZE(((char*)(bp)-DSIZE)))     // 이전 블록 bp로 이동
 
 /* freeList의 이전 포인터와 다음 포인터 계산 */
-#define NEXT_FLP(bp)  (*((char**)(bp) + WSIZE))      // 다음 free list의 bp를 가져옴
+#define NEXT_FLP(bp)  (*((char**)(bp) + DSIZE))      // 다음 free list의 bp를 가져옴
 #define PREV_FLP(bp)  (*((char**)(bp)))              // 다음 free list의 bp를 가져옴
 
 /* The only global variable is a pointer to the first block */
