@@ -217,6 +217,7 @@ static void* find_fit(size_t adjust_size)
  */
 void *mm_malloc(size_t size)
 {
+    printf("malloc in\n");
     size_t adjust_size;           // 블록 사이즈 조정
     size_t extend_size;           // 힙 확장 사이즈
     char* bp;
