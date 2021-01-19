@@ -103,7 +103,7 @@ int mm_init(void)
     return 0;
 }
 
-void * malloc (size_t size)
+void * mm_malloc (size_t size)
 {
     size_t asize;
     size_t extendsize;
@@ -130,7 +130,7 @@ void * malloc (size_t size)
     return bp;
 }
 
-void free(void *bp)
+void mm_free(void *bp)
 {
     if (!bp)
     {
