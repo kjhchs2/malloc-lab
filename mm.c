@@ -43,8 +43,8 @@ team_t team = {
 #define ALIGN(p) (((size_t)(p) + (ALIGNMENT-1)) & ~0x7)   // ALIGNMENT와 가장 근접한 8배수(ALLIGNMENT배수)로 반올림 
 
 /* 기본 상수 및 매크로 설정 */
-#define WSIZE (sizeof(void*))     // 워드사이즈로 헤더&푸터의 사이즈와 같음
-#define DSIZE (2*WSIZE)           // 더블 워드 사이즈 = ALIGNMENT 사이즈
+#define WSIZE 4     // 워드사이즈로 헤더&푸터의 사이즈와 같음
+#define DSIZE 8           // 더블 워드 사이즈 = ALIGNMENT 사이즈
 #define CHUNKSIZE (1<<12)         // 초기 최대 힙 사이즈
 #define MINIMUM 24
 
