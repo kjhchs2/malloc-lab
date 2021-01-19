@@ -262,7 +262,8 @@ static void place(void* bp, size_t adjust_size){
         bp = NEXT_BLKP(bp);
 
         PUT(HDRP(NEXT_BLKP(bp)), PACK(cur_size - adjust_size, 0));
-        PUT(FTRP(NEXT_BLKP(bp)), PACK(cur_size - adjust_size, 0));
+        PUT(FTRP(
+            NEXT_BLKP(bp)), PACK(cur_size - adjust_size, 0));
     }
     else {
         PUT(HDRP(bp), PACK(cur_size, 1));
