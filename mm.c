@@ -63,19 +63,19 @@ team_t team = {
 #define GET_ALLOC(p)  (GET(p) & 0x1)        //0x1은 할당 정보를 갖고 있는 뒷자리 "~~~"와 비교하여 할당 여부만 가져옴
 
 /* 블록포인터(bp)로 헤더와 푸터의 주소를 계산 */
-#define HDRP(bp)    ((void *)(bp) - WSIZE)                           // 헤더의 bp는 bp에서 WSIZE 값을 뺀 만큼
-#define FTRP(bp)    ((void *)(bp) + GET_SIZE(HDRP(bp))-DSIZE)        // 푸터의 bp는 bp에서 내 사이즈를 더하고 DSIZE 값을 뺀 만큼
+#define HDRP(bp)    ((void *)(bp) - WSIZE)                          // 헤더의 bp는 bp에서 WSIZE 값을 뺀 만큼
+#define FTRP(bp)    ((void *)(bp) + GET_SIZE(HDRP(bp))-DSIZE)       // 푸터의 bp는 bp에서 내 사이즈를 더하고 DSIZE 값을 뺀 만큼
 
 /* 블록포인터(bp)로 이전 블록과 다음 블록의 주소를 계산 */
-#define NEXT_BLKP(bp) ((void *)(bp) + GET_SIZE(HDRP(bp)))     // 다음 블록 bp로 이동
+#define NEXT_BLKP(bp) ((void *)(bp) + GET_SIZE(HDRP(bp)))           // 다음 블록 bp로 이동
 #define PREV_BLKP(bp) ((void *)(bp) - GET_SIZE(HDRP(bp)-WSIZE))     // 이전 블록 bp로 이동
 
 /* freeList의 이전 포인터와 다음 포인터 계산 */
-#define NEXT_FLP(bp)  (*(void **)(bp + WSIZE))      // 다음 free list의 bp를 가져옴
-#define PREV_FLP(bp)  (*(void **)(bp))              // 다음 free list의 bp를 가져옴
+#define NEXT_FLP(bp)  (*(void **)(bp + WSIZE))      // ??
+#define PREV_FLP(bp)  (*(void **)(bp))              // ??
 
-static char *heap_listp = 0;
-static char *free_listp = 0;
+static char *heap_listp = 0;        //heap_listp는 힙의 시작점(주소:0)을 가리킴
+static char *free_listp;        //free_listp를 초기화
 
 static void *extendHeap(size_t words);
 static void place(void *bp, size_t asize);
