@@ -172,6 +172,7 @@ void *mm_realloc(void *bp, size_t size)
 
 static void *extendHeap(size_t words)
 {
+    printf("extendheap");
     char* bp;
     size_t size;
 
