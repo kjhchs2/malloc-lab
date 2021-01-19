@@ -114,7 +114,7 @@ void * mm_malloc (size_t size)
         return NULL;
     }
     asize = MAX(ALIGN(size)+DSIZE, MINIMUM);
-    if (bp = findFit(asize))
+    if ((bp = findFit(asize)))
     {
         place(bp, asize);
         return bp;
