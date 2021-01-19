@@ -85,7 +85,6 @@ static void removeBlock(void *bp);
 
 int mm_init(void)
 {
-    printf("init");
     if ((heap_listp = mem_sbrk(2*MINIMUM)) == NULL)
     {
         return -1;
@@ -106,7 +105,6 @@ int mm_init(void)
 
 void * mm_malloc (size_t size)
 {
-    printf("malloc");
     size_t asize;
     size_t extendsize;
     char *bp;
@@ -172,7 +170,6 @@ void *mm_realloc(void *bp, size_t size)
 
 static void *extendHeap(size_t words)
 {
-    printf("extendheap");
     char* bp;
     size_t size;
 
@@ -226,8 +223,8 @@ static void *findFit(size_t asize)
         {
             return bp;
         }
-        return NULL;
     }
+    return NULL;
 }
 
 static void *coalesce(void* bp)
