@@ -239,7 +239,7 @@ void *mm_malloc(size_t size)
     if ((bp = next_fit(adjust_size)) != NULL)
     {
         place(bp, adjust_size);
-
+        last_bp = bp;
         return bp;
     }
     // 사이즈에 맞는 위치가 없는 경우, 추가적으로 힙 영역 요청 및 배치
@@ -249,7 +249,7 @@ void *mm_malloc(size_t size)
         return NULL;
     } 
     place(bp, adjust_size);
-
+    last_bp = bp;
     return bp;
 }
 
