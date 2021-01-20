@@ -63,23 +63,23 @@ team_t team = {
 #define GET_ALLOC(p)  (GET(p) & 0x1)        //0x1은 할당 정보를 갖고 있는 뒷자리 "~~~"와 비교하여 할당 여부만 가져옴
 
 /* 블록포인터(bp)로 헤더와 푸터의 주소를 계산 */
-#define HDRP(bp)    ((void *)(bp) - WSIZE)                          // 헤더의 bp는 bp에서 WSIZE 값을 뺀 만큼
-#define FTRP(bp)    ((void *)(bp) + GET_SIZE(HDRP(bp))-DSIZE)       // 푸터의 bp는 bp에서 내 사이즈를 더하고 DSIZE 값을 뺀 만큼
+#define HDRP(bp)    ((char *)(bp) - WSIZE)                          // 헤더의 bp는 bp에서 WSIZE 값을 뺀 만큼
+#define FTRP(bp)    ((char *)(bp) + GET_SIZE(HDRP(bp))-DSIZE)       // 푸터의 bp는 bp에서 내 사이즈를 더하고 DSIZE 값을 뺀 만큼
 
 /* 블록포인터(bp)로 이전 블록과 다음 블록의 주소를 계산 */
-#define NEXT_BLKP(bp) ((void *)(bp) + GET_SIZE(HDRP(bp)))           // 다음 블록 bp로 이동
-#define PREV_BLKP(bp) ((void *)(bp) - GET_SIZE(HDRP(bp)-WSIZE))     // 이전 블록 bp로 이동
+#define NEXT_BLKP(bp) ((char *)(bp) + GET_SIZE(HDRP(bp)))           // 다음 블록 bp로 이동
+#define PREV_BLKP(bp) ((char *)(bp) - GET_SIZE(HDRP(bp)-WSIZE))     // 이전 블록 bp로 이동
 
 /* freeList의 이전 포인터와 다음 포인터 계산 */
-#define NEXT_FLP(bp)  (*(void **)(bp + WSIZE))      // ??
-#define PREV_FLP(bp)  (*(void **)(bp))              // free list에서 이전 프리 블럭을 가리킴
+#define NEXT_FLP(bp)  (*(char **)(bp + DSIZE))      // ??
+#define PREV_FLP(bp)  (*(char **)(bp))              // free list에서 이전 프리 블럭을 가리킴
 
 static char *heap_listp = 0;              //heap_listp는 힙의 시작점(주소:0)을 가리킴
 static char *free_listp;                  //free_listp를 초기화
 
 static void *extendHeap(size_t words);
 static void place(void *bp, size_t asize);
-static void *findFit(size_t asize);
+static void *find_fit(size_t asize);
 static void *coalesce(void* bp);
 static void removeBlock(void *bp);
 
@@ -116,15 +116,15 @@ void * mm_malloc (size_t size)
     }
     asize = MAX(ALIGN(size)+DSIZE, MINIMUM);    //asize 실시
             
-    if ((bp = findFit(asize)))
+    if ((bp = find_fit(asize)))
     {
         place(bp, asize);
         return bp;
     }
 
-    extendsize = MAX(asize, CHUNKSIZE);         //요청한 사이즈와 청크사이즈 중 큰 놈으로 익스텐드 실시
+    extendsize = MAX(asize, CHUNKSIZE);         //요청한 사이즈와 청크사이즈 중 큰 놈으로 extend 실시
 
-    if ((bp=extendHeap(extendsize/WSIZE)) == NULL)               //extend가 불가능 하면 NULL 리턴해라
+    if ((bp=extendHeap(extendsize/WSIZE)) == NULL)               //extend가 불가능하면 NULL 리턴
     {
         return NULL;
     }
@@ -134,16 +134,16 @@ void * mm_malloc (size_t size)
 
 void mm_free(void *bp)
 {
-    if (!bp)
+    if (!bp)                                    //포인터가 null이면 반환
     {
         return ;
     }
-    size_t size = GET_SIZE(HDRP(bp));
+    size_t size = GET_SIZE(HDRP(bp));           
 
-    PUT(HDRP(bp), PACK(size,0));
+    PUT(HDRP(bp), PACK(size,0));                //헤더와 푸터에 프리됐다고 알려줌
     PUT(FTRP(bp), PACK(size,0));
 
-    coalesce(bp);
+    coalesce(bp);                               //여기서 coalesce를 실행해줘야 함!(여기에 들어가서 병합 및 )
 }
 
 
@@ -216,7 +216,7 @@ static void place(void *bp, size_t asize)
     }
 }
 
-static void *findFit(size_t asize)
+static void *find_fit(size_t asize)
 {
     void *bp;
     for (bp = free_listp; GET_ALLOC(HDRP(bp))==0; bp = NEXT_FLP(bp))
@@ -263,7 +263,7 @@ static void *coalesce(void* bp)
     NEXT_FLP(bp) = free_listp;
     PREV_FLP(free_listp) = bp ;
     PREV_FLP(bp) = NULL;
-    free_listp = bp ;
+    free_listp = bp ;                               //내가 제일 헷갈렸던 부분으로, free_listp는 free list의 가장 앞부분을 가리키는 bp라고 생각!
 
     return bp;
 }
