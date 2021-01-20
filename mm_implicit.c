@@ -72,7 +72,7 @@ team_t team = {
 
 /* The only global variable is a pointer to the first block */
 static char* heap_listp;
-static char* last_bp;
+static char* last_bp ;
 static void* extend_heap(size_t words);
 static void* coalesce(void* bp);
 static void* find_fit(size_t adjust_size);
@@ -99,8 +99,8 @@ int mm_init(void)
     if (extend_heap(CHUNKSIZE / WSIZE) == NULL) {
         return -1; 
     }
-    return 0;
     last_bp = heap_listp;
+    return 0;
 }
 
 static void* extend_heap(size_t words)
@@ -139,6 +139,7 @@ static void *coalesce(void* bp)
     size_t size = GET_SIZE(HDRP(bp));
     // free한 block 앞, 뒤에 모두 할당 되어있는 block이 있는 경우
     if (prev_alloc && next_alloc) {
+        last_bp = bp;
         return bp;
     }
     // free한 블록 뒤에만 free 되어있는 block이 있는 경우
@@ -161,6 +162,7 @@ static void *coalesce(void* bp)
         PUT(FTRP(NEXT_BLKP(bp)), PACK(size, 0));
         bp = PREV_BLKP(bp);
     }
+    last_bp = bp;
     return bp;
 }
 
@@ -168,11 +170,11 @@ static void *coalesce(void* bp)
 static void* find_fit(size_t adjust_size){
     char *bp = heap_listp;
 
-    bp += GET_SIZE(HDRP(bp));
+    bp = NEXT_BLKP(bp);
 
     while ( GET_SIZE(HDRP(bp)) < adjust_size || GET_ALLOC(HDRP(bp)) == 1 )
     {
-        bp += GET_SIZE(HDRP(bp));
+        bp = NEXT_BLKP(bp);
 
         if (GET_SIZE(HDRP(bp)) == 0){        //Epilogue를 만났을 때
             return NULL;
@@ -181,41 +183,33 @@ static void* find_fit(size_t adjust_size){
     return bp;
 }
 
-
-
 static void* next_fit(size_t adjust_size)
 {
     char* bp = last_bp;
-    
-    bp += GET_SIZE(HDRP(bp));
 
-    while ( GET_SIZE(HDRP(bp)) < adjust_size || GET_ALLOC(HDRP(bp)) == 1 )
+    for (bp = NEXT_BLKP(bp); GET_SIZE(HDRP(bp))!=0; bp = NEXT_BLKP(bp))
     {
-        if (GET_ALLOC(HDRP(bp)) == 0 && GET_SIZE(HDRP(bp)) > adjust_size)
+
+        if (GET_ALLOC(HDRP(bp)) == 0 && GET_SIZE(HDRP(bp)) >= adjust_size)
+        {
+            last_bp = bp;
+            return bp;
+        }        
+    }
+
+    bp = heap_listp;
+
+    while (bp < last_bp)
+    {
+        bp = NEXT_BLKP(bp);
+
+        if (GET_ALLOC(HDRP(bp)) == 0 && GET_SIZE(HDRP(bp)) >= adjust_size)
         {
             last_bp = bp;
             return bp;
         }
-
-        bp += GET_SIZE(HDRP(bp));        
-        
-        if (GET_SIZE(HDRP(bp)) == 0){        //Epilogue를 만났을 때
-            break;
-        }
-
     }
-
-    bp = heap_listp;
-    while ( GET_SIZE(HDRP(bp)) < adjust_size || GET_ALLOC(HDRP(bp)) == 1 )
-    {
-        bp += GET_SIZE(HDRP(bp));
-
-        if (bp==last_bp){        //Epilogue를 만났을 때
-            return NULL;
-        }
-    }
-    last_bp = bp;
-    return bp;
+    return NULL ;
 }
 
 /* 
@@ -244,6 +238,7 @@ void *mm_malloc(size_t size)
     if ((bp = next_fit(adjust_size)) != NULL)
     {
         place(bp, adjust_size);
+        last_bp = bp;
         return bp;
     }
     // 사이즈에 맞는 위치가 없는 경우, 추가적으로 힙 영역 요청 및 배치
@@ -253,6 +248,7 @@ void *mm_malloc(size_t size)
         return NULL;
     } 
     place(bp, adjust_size);
+    last_bp = bp;
     return bp;
 }
 

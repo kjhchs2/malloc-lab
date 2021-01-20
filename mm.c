@@ -164,6 +164,7 @@ static void *coalesce(void* bp)
     }
     last_bp = bp;
     return bp;
+
 }
 
 
@@ -181,6 +182,7 @@ static void* find_fit(size_t adjust_size){
         }
     }
     return bp;
+    return;
 }
 
 static void* next_fit(size_t adjust_size)
