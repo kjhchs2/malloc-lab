@@ -188,9 +188,9 @@ static void* next_fit(size_t adjust_size)
     char* bp = last_bp;
     // bp = NEXT_BLKP(bp);
 
-    for (char* bp = NEXT_BLKP(bp); GET_SIZE(HDRP(bp))!=0; bp = NEXT_BLKP(bp))
+    for (bp = NEXT_BLKP(bp); GET_SIZE(HDRP(bp))!=0; bp = NEXT_BLKP(bp))
     {
-        if (GET_ALLOC(HDRP(bp)) == 0 && GET_SIZE(HDRP(bp)) > adjust_size)
+        if (GET_ALLOC(HDRP(bp)) == 0 && GET_SIZE(HDRP(bp)) >= adjust_size)
         {
             last_bp = bp;
             return bp;
@@ -199,6 +199,7 @@ static void* next_fit(size_t adjust_size)
 
     bp = heap_listp;
     bp = NEXT_BLKP(bp);
+    
     while ( GET_SIZE(HDRP(bp)) < adjust_size || GET_ALLOC(HDRP(bp)) == 1 )
     {
         bp = NEXT_BLKP(bp);
