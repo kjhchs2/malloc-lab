@@ -220,7 +220,6 @@ static void* next_fit(size_t adjust_size)
             return NULL;
         }
     }
-
 }
 
 /* 
@@ -246,7 +245,7 @@ void *mm_malloc(size_t size)
     }
 
     // 사이즈에 맞는 위치 탐색
-    if ((bp = next_fit(adjust_size)) != NULL)
+    if ((bp = find_fit(adjust_size)) != NULL)
     {
         place(bp, adjust_size);
         return bp;
