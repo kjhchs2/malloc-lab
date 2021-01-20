@@ -186,7 +186,6 @@ static void* find_fit(size_t adjust_size){
 static void* next_fit(size_t adjust_size)
 {
     char* bp = last_bp;
-
     bp += GET_SIZE(HDRP(bp));
 
     while ( GET_SIZE(HDRP(bp)) < adjust_size || GET_ALLOC(HDRP(bp)) == 1 )
@@ -220,6 +219,8 @@ static void* next_fit(size_t adjust_size)
             return NULL;
         }
     }
+    last_bp = bp;
+    return bp;
 }
 
 /* 
@@ -245,7 +246,7 @@ void *mm_malloc(size_t size)
     }
 
     // 사이즈에 맞는 위치 탐색
-    if ((bp = find_fit(adjust_size)) != NULL)
+    if ((bp = next_fit(adjust_size)) != NULL)
     {
         place(bp, adjust_size);
         return bp;
