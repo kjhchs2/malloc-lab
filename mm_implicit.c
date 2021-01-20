@@ -72,10 +72,12 @@ team_t team = {
 
 /* The only global variable is a pointer to the first block */
 static char* heap_listp;
+static char* last_bp;
 static void* extend_heap(size_t words);
 static void* coalesce(void* bp);
 static void* find_fit(size_t adjust_size);
 static void place(void* bp, size_t adjust_size);
+static void* next_fit(size_t adjust_size);
 void *mm_malloc(size_t size);
 int mm_init(void);
 
@@ -98,6 +100,7 @@ int mm_init(void)
         return -1; 
     }
     return 0;
+    last_bp = heap_listp;
 }
 
 static void* extend_heap(size_t words)
@@ -178,6 +181,43 @@ static void* find_fit(size_t adjust_size){
     return bp;
 }
 
+
+
+static void* next_fit(size_t adjust_size)
+{
+    char* bp = last_bp;
+    
+    bp += GET_SIZE(HDRP(bp));
+
+    while ( GET_SIZE(HDRP(bp)) < adjust_size || GET_ALLOC(HDRP(bp)) == 1 )
+    {
+        if (GET_ALLOC(HDRP(bp)) == 0 && GET_SIZE(HDRP(bp)) > adjust_size)
+        {
+            last_bp = bp;
+            return bp;
+        }
+
+        bp += GET_SIZE(HDRP(bp));        
+        
+        if (GET_SIZE(HDRP(bp)) == 0){        //Epilogue를 만났을 때
+            break;
+        }
+
+    }
+
+    bp = heap_listp;
+    while ( GET_SIZE(HDRP(bp)) < adjust_size || GET_ALLOC(HDRP(bp)) == 1 )
+    {
+        bp += GET_SIZE(HDRP(bp));
+
+        if (bp==last_bp){        //Epilogue를 만났을 때
+            return NULL;
+        }
+    }
+    last_bp = bp;
+    return bp;
+}
+
 /* 
  * mm_malloc - Allocate a block by incrementing the brk pointer.
  *     Always allocate a block whose size is a multiple of the alignment.
@@ -201,7 +241,7 @@ void *mm_malloc(size_t size)
     }
 
     // 사이즈에 맞는 위치 탐색
-    if ((bp = find_fit(adjust_size)) != NULL)
+    if ((bp = next_fit(adjust_size)) != NULL)
     {
         place(bp, adjust_size);
         return bp;
