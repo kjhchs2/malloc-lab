@@ -200,13 +200,9 @@ static void* next_fit(size_t adjust_size)
 
     bp = heap_listp;
 
-    while (1)
+    while (bp < last_bp)
     {
         bp = NEXT_BLKP(bp);
-        
-        if (bp==last_bp){        
-            return NULL;
-        }
 
         if (GET_ALLOC(HDRP(bp)) == 0 && GET_SIZE(HDRP(bp)) >= adjust_size)
         {
@@ -214,6 +210,7 @@ static void* next_fit(size_t adjust_size)
             return bp;
         }
     }
+    return NULL ;
 }
 
 /* 
