@@ -72,7 +72,7 @@ team_t team = {
 
 /* The only global variable is a pointer to the first block */
 static char* heap_listp;
-static char* last_bp;
+static char* last_bp ;
 static void* extend_heap(size_t words);
 static void* coalesce(void* bp);
 static void* find_fit(size_t adjust_size);
@@ -99,8 +99,8 @@ int mm_init(void)
     if (extend_heap(CHUNKSIZE / WSIZE) == NULL) {
         return -1; 
     }
-    return 0;
     last_bp = heap_listp;
+    return 0;
 }
 
 static void* extend_heap(size_t words)
@@ -162,7 +162,7 @@ static void *coalesce(void* bp)
         PUT(FTRP(NEXT_BLKP(bp)), PACK(size, 0));
         bp = PREV_BLKP(bp);
     }
-    last_bp = bp;
+    // last_bp = bp;
     return bp;
 }
 
