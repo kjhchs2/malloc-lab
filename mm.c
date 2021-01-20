@@ -188,12 +188,13 @@ static void* next_fit(size_t adjust_size)
 
     while ( GET_SIZE(HDRP(bp)) < adjust_size || GET_ALLOC(HDRP(bp)) == 1 )
     {
+        bp = NEXT_BLKP(bp);
+
         if (GET_ALLOC(HDRP(bp)) == 0 && GET_SIZE(HDRP(bp)) > adjust_size)
         {
             last_bp = bp;
             return bp;
         }
-        bp = NEXT_BLKP(bp);
         if (GET_SIZE(HDRP(bp)) == 0){        //Epilogue를 만났을 때
             break;
         }
@@ -203,14 +204,13 @@ static void* next_fit(size_t adjust_size)
     bp = NEXT_BLKP(bp);
     while ( GET_SIZE(HDRP(bp)) < adjust_size || GET_ALLOC(HDRP(bp)) == 1 )
     {
+        bp = NEXT_BLKP(bp);
+
         if (GET_ALLOC(HDRP(bp)) == 0 && GET_SIZE(HDRP(bp)) > adjust_size)
         {
             last_bp = bp;
             return bp;
         }
-        
-        bp = NEXT_BLKP(bp);
-        
         if (bp==last_bp){        //Epilogue를 만났을 때
             return NULL;
         }
@@ -242,7 +242,7 @@ void *mm_malloc(size_t size)
     }
 
     // 사이즈에 맞는 위치 탐색
-    if ((bp = find_fit(adjust_size)) != NULL)
+    if ((bp = next_fit(adjust_size)) != NULL)
     {
         place(bp, adjust_size);
         return bp;
