@@ -71,7 +71,7 @@ team_t team = {
 #define PREV_BLKP(bp) ((char *)(bp) - GET_SIZE(HDRP(bp)-WSIZE))     // 이전 블록 bp로 이동
 
 /* freeList의 이전 포인터와 다음 포인터 계산 */
-#define NEXT_FLP(bp)  (*(char **)(bp + DSIZE))      // ??
+#define NEXT_FLP(bp)  (*(char **)(bp + WSIZE))      // ??
 #define PREV_FLP(bp)  (*(char **)(bp))              // free list에서 이전 프리 블럭을 가리킴
 
 static char *heap_listp = 0;              //heap_listp는 힙의 시작점(주소:0)을 가리킴
