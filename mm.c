@@ -203,11 +203,6 @@ static void* next_fit(size_t adjust_size)
     {
         bp = NEXT_BLKP(bp);
 
-        if (GET_ALLOC(HDRP(bp)) == 0 && GET_SIZE(HDRP(bp)) > adjust_size)
-        {
-            last_bp = bp;
-            return bp;
-        }
         if (bp==last_bp){        
             return NULL;
         }
