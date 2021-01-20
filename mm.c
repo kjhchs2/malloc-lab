@@ -169,11 +169,10 @@ static void* find_fit(size_t adjust_size){
     char *bp = heap_listp;
 
     bp = NEXT_BLKP(bp);
-    // bp += GET_SIZE(HDRP(bp));
 
     while ( GET_SIZE(HDRP(bp)) < adjust_size || GET_ALLOC(HDRP(bp)) == 1 )
     {
-        bp += GET_SIZE(HDRP(bp));
+        bp = NEXT_BLKP(bp);
 
         if (GET_SIZE(HDRP(bp)) == 0){        //Epilogue를 만났을 때
             return NULL;
@@ -185,7 +184,7 @@ static void* find_fit(size_t adjust_size){
 static void* next_fit(size_t adjust_size)
 {
     char* bp = last_bp;
-    bp += GET_SIZE(HDRP(bp));
+    bp = NEXT_BLKP(bp);
 
     while ( GET_SIZE(HDRP(bp)) < adjust_size || GET_ALLOC(HDRP(bp)) == 1 )
     {
@@ -194,14 +193,14 @@ static void* next_fit(size_t adjust_size)
             last_bp = bp;
             return bp;
         }
-        bp += GET_SIZE(HDRP(bp));        
+        bp = NEXT_BLKP(bp);
         if (GET_SIZE(HDRP(bp)) == 0){        //Epilogue를 만났을 때
             break;
         }
     }
 
     bp = heap_listp;
-    bp += GET_SIZE(HDRP(bp));
+    bp = NEXT_BLKP(bp);
     while ( GET_SIZE(HDRP(bp)) < adjust_size || GET_ALLOC(HDRP(bp)) == 1 )
     {
         if (GET_ALLOC(HDRP(bp)) == 0 && GET_SIZE(HDRP(bp)) > adjust_size)
@@ -210,7 +209,7 @@ static void* next_fit(size_t adjust_size)
             return bp;
         }
         
-        bp += GET_SIZE(HDRP(bp));
+        bp = NEXT_BLKP(bp);
         
         if (bp==last_bp){        //Epilogue를 만났을 때
             return NULL;
