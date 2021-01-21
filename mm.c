@@ -25,6 +25,9 @@
 team_t team = {
     /* Team name */
     "jungle_week06_03",
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
+// 아직 week 06 밖에 안됐나? 형... 엄청 여기 오래 있었던 거 같다... 그치?
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
     /* First member's full name */
     "gojae",
     /* First member's email address */
@@ -41,6 +44,9 @@ team_t team = {
 
 /* rounds up to the nearest multiple of ALIGNMENT */
 #define ALIGN(size) (((size) + (ALIGNMENT-1)) & ~0x7)   // ALIGNMENT와 가장 근접한 8배수(ALLIGNMENT배수)로 반올림 
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
+// 반올림이 아니라 올림이 아닐까?
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
 #define SIZE_T_SIZE (ALIGN(sizeof(size_t)))     //size_t를 통해 size 결정 *size_t는 64비트 환경에서 64비트
 
 /* 기본 상수 및 매크로 설정 */
@@ -71,6 +77,7 @@ team_t team = {
 #define PREV_BLKP(bp) ((char*)(bp) - GET_SIZE(((char*)(bp)-DSIZE)))     // 이전 블록 bp로 이동
 
 /* The only global variable is a pointer to the first block */
+static char* code_review_complete_ptr;
 static char* heap_listp;
 static char* last_bp ;
 static void* extend_heap(size_t words);
@@ -80,6 +87,10 @@ static void place(void* bp, size_t adjust_size);
 static void* next_fit(size_t adjust_size);
 void *mm_malloc(size_t size);
 int mm_init(void);
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
+//  함수의 선언 형식에 따라서 정렬을 해두셔서 어떤 함수가 있는지 보기 좋게 한눈에 들어옵니다.          
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
+
 
 /* 
  * mm_init - initialize the malloc package.
@@ -100,6 +111,10 @@ int mm_init(void)
         return -1; 
     }
     last_bp = heap_listp;
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
+// last_bp에 heap_listp를 대입할 때 왜 이 함수의 이곳에서 설정하셨는지 설명이 있으면
+// 나중에 다시 본인의 코드를 디버깅할때 수월할 것 같습니다.
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
     return 0;
 }
 
@@ -119,11 +134,11 @@ static void* extend_heap(size_t words)
     return coalesce(bp);
 }
 
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
+// 함수와 함수 사이 간격을 일정하게 유지하면 코드가 더 깔끔하게 보일 것 같습니다.
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
 
 
-/*
- * mm_free - Freeing a block does nothing.
- */
 void mm_free(void *bp)
 {
     size_t size = GET_SIZE(HDRP(bp));
@@ -163,6 +178,10 @@ static void *coalesce(void* bp)
         bp = PREV_BLKP(bp);
     }
     last_bp = bp;
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
+// last_bp = bp 라는 문장과 return bp 라는 문장을 coalesce 함수에서 한번만 해도 코드가 작동하고
+// 더 깔끔해 보이는 코드가 될 것 같습니다.
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
     return bp;
 }
 
@@ -199,6 +218,9 @@ static void* next_fit(size_t adjust_size)
     bp = heap_listp;
     while (bp < last_bp)
     {
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
+// 주소값의 대소관계를 잘 이용해서 while 문의 조건식을 작성하신 것 같네요. 훌륭하십니다.
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
         bp = NEXT_BLKP(bp);
 
         if (GET_ALLOC(HDRP(bp)) == 0 && GET_SIZE(HDRP(bp)) >= adjust_size)
@@ -257,6 +279,9 @@ static void place(void* bp, size_t adjust_size){
     if (cur_size - adjust_size >= 2*DSIZE){
         PUT(HDRP(bp), PACK(adjust_size, 1));
         PUT(FTRP(bp), PACK(adjust_size, 1));
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
+// 여기서 bp = NEXT_BLKP(bp) 를 넣어줬으면 아래 코드가 조금 더 짧아졌을 것 같습니다.
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
         PUT(HDRP(NEXT_BLKP(bp)), PACK(cur_size - adjust_size, 0));
         PUT(FTRP(NEXT_BLKP(bp)), PACK(cur_size - adjust_size, 0));
     }
@@ -302,3 +327,7 @@ void *mm_realloc(void *bp, size_t size)
     
     return new_bp;
 }
+
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
+// 고생하셨습니다. 재헌이 형님. 새로 오는 이번주 과제도 화이팅하고 열심히 잘해봅시다!!!!! 🥰
+// ------------------------------ < CODE REVIEW>  ------------------------------ //
