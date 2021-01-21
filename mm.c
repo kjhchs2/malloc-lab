@@ -25,6 +25,7 @@
 team_t team = {
     /* Team name */
     "jungle_week06_03",
+
     /* First member's full name */
     "gojae",
     /* First member's email address */
@@ -40,7 +41,9 @@ team_t team = {
 #define ALIGNMENT 8
 
 /* rounds up to the nearest multiple of ALIGNMENT */
+
 #define ALIGN(size) (((size) + (ALIGNMENT-1)) & ~0x7)   // ALIGNMENT와 가장 근접한 8배수(ALLIGNMENT배수)로 올림 
+ 
 #define SIZE_T_SIZE (ALIGN(sizeof(size_t)))     //size_t를 통해 size 결정 *size_t는 64비트 환경에서 64비트
 
 /* 기본 상수 및 매크로 설정 */
@@ -71,8 +74,9 @@ team_t team = {
 #define PREV_BLKP(bp) ((char*)(bp) - GET_SIZE(((char*)(bp)-DSIZE)))     // 이전 블록 bp로 이동
 
 /* The only global variable is a pointer to the first block */
+static char* code_review_complete_ptr;
 static char* heap_listp;
-static char* last_bp ;
+static char* last_bp ;                                                  //next_fit을 위한 변수 선언
 static void* extend_heap(size_t words);
 static void* coalesce(void* bp);
 static void* find_fit(size_t adjust_size);
@@ -99,7 +103,7 @@ int mm_init(void)
     if (extend_heap(CHUNKSIZE / WSIZE) == NULL) {
         return -1; 
     }
-    last_bp = heap_listp;
+    last_bp = heap_listp;                           
     return 0;
 }
 
@@ -121,9 +125,6 @@ static void* extend_heap(size_t words)
 
 
 
-/*
- * mm_free - Freeing a block does nothing.
- */
 void mm_free(void *bp)
 {
     size_t size = GET_SIZE(HDRP(bp));
