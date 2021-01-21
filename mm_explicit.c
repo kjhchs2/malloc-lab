@@ -40,7 +40,7 @@ team_t team = {
 #define ALIGNMENT 8
 
 /* rounds up to the nearest multiple of ALIGNMENT */
-#define ALIGN(p) (((size_t)(p) + (ALIGNMENT-1)) & ~0x7)   // ALIGNMENT와 가장 근접한 8배수(ALLIGNMENT배수)로 반올림 
+#define ALIGN(p) (((size_t)(p) + (ALIGNMENT-1)) & ~0x7)   // ALIGNMENT와 가장 근접한 8배수(ALLIGNMENT배수)로 올림 
 
 /* 기본 상수 및 매크로 설정 */
 #define WSIZE 4     // 워드사이즈로 헤더&푸터의 사이즈와 같음
@@ -87,7 +87,7 @@ int mm_init(void)
 {
     if ((heap_listp = mem_sbrk(2*MINIMUM)) == NULL)
     {
-        return -1;                  //여기서 -1을 리턴하면? 어케되나요?
+        return -1;                  
     }
     PUT(heap_listp, 0);                                         //맨 앞에 스타트 지점(0으로 채워줌)
     PUT(heap_listp + (1 * WSIZE), PACK(MINIMUM, 1));            //블럭의 헤더 부분으로 사이즈(MINIMUM)와 할당여부(1)를 넣어줌
@@ -99,7 +99,7 @@ int mm_init(void)
     free_listp = heap_listp + DSIZE;                            //free_listp의 위치를 옮겨줌(헤더 바로 뒤) = free list 포인터를 초기화한다.
     
     if (extendHeap(CHUNKSIZE / WSIZE) == NULL) {                //extend가 불가능 하면 -1 리턴해라?
-        return -1;                   //여기서 -1을 리턴하면? 어케되나요?
+        return -1;                   
     }
     return 0;
 }

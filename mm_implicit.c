@@ -40,7 +40,7 @@ team_t team = {
 #define ALIGNMENT 8
 
 /* rounds up to the nearest multiple of ALIGNMENT */
-#define ALIGN(size) (((size) + (ALIGNMENT-1)) & ~0x7)   // ALIGNMENT와 가장 근접한 8배수(ALLIGNMENT배수)로 반올림 
+#define ALIGN(size) (((size) + (ALIGNMENT-1)) & ~0x7)   // ALIGNMENT와 가장 근접한 8배수(ALLIGNMENT배수)로 올림 
 #define SIZE_T_SIZE (ALIGN(sizeof(size_t)))     //size_t를 통해 size 결정 *size_t는 64비트 환경에서 64비트
 
 /* 기본 상수 및 매크로 설정 */
